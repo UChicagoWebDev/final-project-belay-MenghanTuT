@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belay Chat Application</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rowdies:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <link rel="stylesheet" type="text/css" href="/static/style.css"></link>
+
+    <style>
+    </style>
+  
+</head>
+<body>
+      <div class="splash container"> <!-- TODO: Show me only on "/" -->
+
+          <div class="splashHeader">
+            <div class="loginHeader">
+              <div class="loggedOut"> <!-- TODO: Show me only to logged-out users -->
+                <a>Login</a>
+              </div>
+              <div class="loggedIn"> <!-- TODO: Show me only to logged-in users -->
+                <a class="welcomeBack">
+                  <span class="username">Welcome back, {{ Username }}!</span>
+                  <span class="material-symbols-outlined md-18">person</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero">
+              <div class="logo">
+                <img id="tv" src="/static/tv.jpeg">
+                <img id="popcorn" src="/static/popcorn.png">
+              </div>
+              <h1>Belay</h1>
+              <h2>1</h2>
+              <button class="create">Start Chat</button> <!-- TODO: Show me only to logged-in users -->
+              <button class="signup">Signup</button> <!-- TODO: Show me only to logged-out users -->
+          </div>
+      </div>
+
+      <div class="login container"> <!-- TODO: Show me only on "/login" -->
+        <div class="header">
+          <h2><a>Belay: Home</a></h2>
+          <h4>1</h4>
+        </div>
+        <div class="clip">
+          <div class="auth container">
+            <h3>Enter your username and password to log in:</h3>
+            <div class="alignedForm login">
+              <label for="username">Username</label>
+              <input name="username"></input>
+              <button>Login</button>
+              <label for="password">Password</label>
+              <input type="password" name="password">
+            </div>
+            <div class="failed"> <!-- TODO: Hide me by default. Show only on failed login attempts -->
+              <button>Create a new Account</button>
+              <div class="message">
+                Oops, that username and password don't match any of our users!
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> <!-- end .login -->
+
+      <div class="profile  container"> <!-- TODO: Show me only on "/profile" -->
+        <div class="header">
+          <h2><a href="/">Belay: Home</a></h2>
+          <h4>1</h4>
+          <div class="loginHeader">
+            <div class="loggedIn">
+              <a class="welcomeBack">
+                <span class="username">{{ Username }}</span>
+                <span class="material-symbols-outlined md-18">person</span></a>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="clip">
+          <div class="auth container">
+            <h2>Welcome to Watch Party!</h2>
+            <div class="alignedForm">
+              <label for="username">Username: </label>
+              <input name="username" value="{{ username }} -> Home Page">
+              <button>update</button>
+              <label for="password">Password: </label>
+              <input type="password" name="password" value="{{ password }}">
+              <button>update</button>
+              <label for="repeatPassword">Repeat: </label>
+              <input type="password" name="repeatPassword" value="{{ password }}">
+              <error>Passwords don't match</error>
+              <button class="exit goToSplash">Cool, let's start chat!</button>
+              <button class="exit logout">Log out</button>
+            </div>
+          </div>
+        </div> 
+      </div>
+
+      <div class = "room"> <!-- TODO: Show me only on "/room" -->
+        <div class="header">
+              <h2><a>Belay: Home</a></h2>
+              <h4>1</h4>
+              <div class="roomDetail">
+                <div class="displayRoomName"> 
+                  <h3>
+                    Chatting in <strong>{{ room.name }}</strong>
+                    <a><span class="material-symbols-outlined md-18">edit</span></a>
+                  </h3>
+                </div>
+                <div class="editRoomName"> 
+                  <h3>
+                    Chatting in <input>
+                    <button>Update</button>
+                  </h3>
+                </div>
+              </div>
+              <div class="loginHeader">
+                <div class="loggedIn">
+                  <a class="welcomeBack">
+                    <span class="username">{{ Username }}</span>
+                    <span class="material-symbols-outlined md-18">person</span></a>
+                  </a>
+                </div>
+              </div>
+        </div>
+
+        <div class="roomcontainer">
+                <aside class="sidebar">
+                    <div class="comment_box">
+                      <label for="commentandchannel">What do you have to say?</label>
+                      <textarea name="commentandchannel"></textarea>
+                      <div class = "button-grid">
+                        <button class ="post" type="submit" value="Post">Post</button>
+                        <button class="create-channel">+ Create Channel</button>
+                      </div>
+                    </div>
+                    <div class="comment_box">
+                      <label for="reply">Reply to the comment</label>
+                      <textarea name="reply"></textarea>
+                      <div class = "button-grid">
+                        <button class ="reply" type="submit" value="Reply">Post</button>
+                      </div>
+                    </div>
+                    <div class="channels">
+                    <div div class="ChannelList">Channels:
+                      <div class="channel">Channel 1: </div>
+                      <div class="channel">Channel 2: zzzzzzz zzzzzzz zzzzzzz zzzzzzz</div>
+                    </div>
+                    </div>
+                </aside>
+                <div class="chat-box"> 
+                    <!-- Example messages -->
+                    <div class="messages">
+                      <dialogue>
+                        <message>
+                          <author>Mr Chatterworth</author>
+                          <content>Good evening! And how is everyone feeling? Good evening! And how is everyone feeling? Good evening! And how is everyone feeling? Good evening! And how is everyone feeling?</content>
+                        </message>
+                        <reply>
+                          <author>Mr Chatterworth</author>
+                          <content>Good evening!</content>
+                        </reply>
+                        <reply>
+                          <author>Mr Chatterworth</author>
+                          <content>Good evening!</content>
+                        </reply>
+                        <reply>
+                          <author>Mr Chatterworth</author>
+                          <content>Good evening!</content>
+                        </reply>
+                      </dialogue>
+                      <dialogue>
+                        <message>
+                          <author>Mr Chatterworth</author>
+                          <content>Good evening! And how is everyone feeling? Good evening! And how is everyone feeling? Good evening! And how is everyone feeling? Good evening! And how is everyone feeling?</content>
+                        </message>
+                        <reply>
+                          <author>Mr Chatterworth</author>
+                          <content>Good evening!</content>
+                        </reply>
+                        <reply>
+                          <author>Mr Chatterworth</author>
+                          <content>Good evening!</content>
+                        </reply>
+                      </dialogue>
+                      <dialogue>
+                        <message>
+                          <author>Mr Chatterworth</author>
+                          <content>Good evening! And how is everyone feeling? Good evening! And how is everyone feeling? Good evening! And how is everyone feeling? Good evening! And how is everyone feeling?</content>
+                        </message>
+                        <reply>
+                          <author>Mr Chatterworth</author>
+                          <content>Good evening!</content>
+                        </reply>
+                      </dialogue>
+                      <dialogue>
+                        <message>
+                          <author>big chats</author>
+                          <content>gr8 lol</content>
+                        </message>
+                        <reply>
+                          <author>Mr Chatterworth</author>
+                          <content>Good evening!</content>
+                        </reply>
+                      </dialogue>
+                    </div>
+                </div>
+        </div>
+  </div>
+
+
+    <script src="/static/script.js"> </script>
+</body>
+</html>
