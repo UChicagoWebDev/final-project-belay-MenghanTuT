@@ -87,6 +87,21 @@ def create_table_channelmessages():
 );
     '''
     query_db(query)
+
+def create_table_channelreplies():
+    query = '''
+    CREATE TABLE IF NOT EXISTS channelreplies (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    channel_id INTEGER NOT NULL,
+    body VARCHAR(40) NOT NULL,
+    replies_to INTEGER,
+    FOREIGN KEY (channel_id) REFERENCES channels(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (replies_to) REFERENCES channelmessages(id)
+);
+    '''
+    query_db(query)
 # ----------------------------------------------
 
 def new_user():
@@ -129,6 +144,7 @@ def api_key_required(f):
 def index(chat_id=None):
 #------------------------------------------------------------
 #debug
+    # drop_table("channelmessages")
     # create_table_channelmessages()
     # print_table_name()
 #------------------------------------------------------------
@@ -190,9 +206,73 @@ def api_create_channel():
     channel = create_channel(name)
     return {'id': channel['id'], 'name': channel['name']}
 
+@app.route('/api/channels/<int:channel_id>/messages', methods=['POST'])
+@api_key_required
+def post_message(channel_id):
+    data = request.get_json()
+    api_key = request.headers.get('Authorization')
+    user_id = query_db('SELECT id FROM users WHERE api_key = ?', [api_key], one=True)
+    user_id = user_id['id']
+    body = data.get('body')
+    if not user_id or not body:
+        return jsonify({"error": "Missing user_id or body"}), 400
+    poseted_message = query_db('''INSERT INTO channelmessages (channel_id, user_id, body, replies_to) 
+                   VALUES (?, ?, ?, NULL)  returning id, channel_id, user_id, body''' , 
+                   (channel_id, user_id, body), one = True)
+    print(poseted_message)
+    return {'id': poseted_message['id'], 'user_id': poseted_message['user_id'], 
+            'channel_id': poseted_message['channel_id'], 'body': poseted_message['body']}
+
+@app.route('/api/channels/<int:channel_id>/replies', methods=['POST'])
+@api_key_required
+def post_reply(channel_id):
+    data = request.get_json()
+    api_key = request.headers.get('Authorization')
+    user_id = query_db('SELECT id FROM users WHERE api_key = ?', [api_key], one=True)
+    user_id = user_id['id']
+    body = data.get('body')
+    replies_to = data.get('replied_to')
+    if not user_id or not body or not replies_to:
+        return jsonify({"error": "Missing user_id or body or replied_to"}), 400
+    poseted_reply = query_db('''INSERT INTO channelmessages (channel_id, user_id, body, replies_to) 
+                   VALUES (?, ?, ?, ?)  returning id, channel_id, user_id, body, replies_to''' , 
+                   (channel_id, user_id, body, replies_to), one = True)
+    print(poseted_reply)
+    return {'id': poseted_reply['id'], 'user_id': poseted_reply['user_id'], 
+            'channel_id': poseted_reply['channel_id'], 'body': poseted_reply['body'],
+            'replied_to': poseted_reply['replies_to']}
+
 @app.route('/api/channels', methods=['GET'])
 @api_key_required
 def get_channels():
     channels = query_db("SELECT id, name FROM channels;")
     channels_list = [{'id': channel['id'], 'name': channel['name']} for channel in channels]
     return jsonify(channels_list)
+
+@app.route('/api/channels/<int:channel_id>/messages', methods=['GET'])
+@api_key_required
+def get_messages(channel_id):
+    # Fetch messages without replyto (i.e., main messages in a channel)
+    messages_query = """SELECT channelmessages.id, users.name, body FROM channelmessages
+                        INNER join users on channelmessages.user_id = users.id
+                        WHERE channel_id = ? AND replies_to IS NULL"""
+    messages = query_db(messages_query, [channel_id])
+    replies_query = """SELECT channelmessages.id, users.name, body, replies_to FROM channelmessages 
+                       INNER join users on channelmessages.user_id = users.id
+                       WHERE channel_id = ? AND replies_to IS NOT NULL"""
+    replies = query_db(replies_query, [channel_id])
+    if messages:
+        messages_dict = {message['id']: {'id': message['id'], 'username': message['name'], 
+                                        'body': message['body'], 'replies': []} 
+                        for message in messages}
+        if replies:
+            for reply in replies:
+                if reply['replies_to'] in messages_dict:
+                    reply_dict = {'id': reply['id'], 'username': reply['name'], 'body': reply['body'], 
+                                'replies_to': reply['replies_to']}
+                    messages_dict[reply['replies_to']]['replies'].append(reply_dict)
+        messages_list = list(messages_dict.values())
+        messages_list = sorted(messages_list, key=lambda x: x['id'])
+    else:
+        messages_list = []
+    return jsonify(messages_list)

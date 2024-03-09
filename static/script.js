@@ -69,7 +69,6 @@ if (!apiKey){console.log("pageload: not found apiKey")} else{console.log("pagelo
       showPage(PROFILE);
       showcorrectprofile();
     } else if (path.startsWith('/room')) {
-      // startMessagePolling();
       showPage(ROOM);
       showcorrectroom();
     } else {
@@ -164,6 +163,7 @@ function navigateTo(url) {
         console.error('Login error:', error);
       }
     }
+
     //Profile
     async function UpdateUsername(){
       const usernameInput = document.querySelector('.profile .auth input[name="username"]');
@@ -239,6 +239,70 @@ function navigateTo(url) {
       }
     }
     
+    async function post_message(){
+      try {
+        const channelId = localStorage.getItem('menghanjia_channelId');
+        messageBody = document.querySelector('textarea[name="commentandchannel"]').value;
+        const apiKey = localStorage.getItem('menghanjia_apiKey');
+        if (!messageBody.trim()) {
+          alert("Message cannot be empty");
+          return;
+        }
+        const response = await fetch(`/api/channels/${channelId}/messages`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `${apiKey}` 
+            },
+            body: JSON.stringify({
+              body: messageBody
+            })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Message posted successfully", data);
+          document.querySelector('textarea[name="commentandchannel"]').value = '';
+        } else {
+          console.error('Posting message failed');
+        }
+      } catch (error) {
+        console.error('Error during posting message', error);
+      }
+    }
+
+    async function post_reply(){
+      try {
+        const channelId = localStorage.getItem('menghanjia_channelId');
+        const repliedMassageId = localStorage.getItem('menghanjia_selecteddialogue')
+        messageBody = document.querySelector('textarea[name="reply"]').value;
+        const apiKey = localStorage.getItem('menghanjia_apiKey');
+        if (!messageBody.trim()) {
+          alert("Reply cannot be empty");
+          return;
+        }
+        const response = await fetch(`/api/channels/${channelId}/replies`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `${apiKey}` 
+            },
+            body: JSON.stringify({
+              body: messageBody,
+              replied_to: repliedMassageId
+            })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Message posted successfully", data);
+          document.querySelector('textarea[name="commentandchannel"]').value = '';
+        } else {
+          console.error('Posting message failed');
+        }
+      } catch (error) {
+        console.error('Error during posting message', error);
+      }
+    }
+
     async function fetchChannelsAndUpdateUI() {
       //debug
       // console.log("Channel polling")
@@ -273,6 +337,55 @@ function navigateTo(url) {
         }
       } catch (error) {
         console.error('Error during getting channels', error);
+      }
+    }
+    
+    async function fetchMessagesAndUpdateUI(channelId) {
+      try {
+          const apiKey = localStorage.getItem('menghanjia_apiKey');
+          const response = await fetch(`/api/channels/${channelId}/messages`, {
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `${apiKey}`
+              },
+          }); 
+          if (response.ok) {
+              const messages = await response.json();
+
+              //debug
+              console.log(messages)
+
+              const chatBoxDiv = document.querySelector('.chat-box .messages');
+              // Clear existing messages
+              chatBoxDiv.innerHTML = '';
+              messages.forEach(message => {
+                  // Create a dialogue
+                  const dialogueElement = document.createElement('dialogue');
+                  // Append the main message
+                  const messageElement = document.createElement('message');
+                  messageElement.innerHTML = `<author>${message.username}</author>
+                                              <content>${message.body}</content>`;
+                  dialogueElement.appendChild(messageElement);
+                  
+                  // Append replies, if any
+                  if (message.replies && message.replies.length) {
+                      message.replies.forEach(reply => {
+                          const replyElement = document.createElement('reply');
+                          replyElement.innerHTML = `<author>${reply.username}</author>
+                                                    <content>${reply.body}</content>`;
+                          dialogueElement.appendChild(replyElement);
+                      });
+                  }
+                  // Add the dialogue to the chat box
+                  dialogueElement.dataset.messageId = message.id;
+                  chatBoxDiv.appendChild(dialogueElement);
+              });
+          } else {
+              console.error('Get messages failed');
+          }
+      } catch (error) {
+          console.error('Error during getting messages', error);
       }
     }
 
@@ -394,12 +507,45 @@ function Roomlistener(){
   if (!target) return; // If the clicked element is not a channel div, do nothing
   const channelId = target.dataset.channelId; // Get the channel id from the clicked element
   //........................
+  localStorage.setItem("menghanjia_channelId", channelId)
+  fetchMessagesAndUpdateUI(channelId)
+  
+  channelmessagePollingInterval = startChannelMessagePolling()
   console.log(channelId);
+  });
+
+  const chatBoxDiv = document.querySelector('.chat-box .messages');
+  chatBoxDiv.addEventListener('click', function(event) {
+        let target = event.target;
+        // if (!target.matches('.message-content, .message-content *')) {
+        // // if (!target.matches('.message')) {
+        //     console.log("return")
+        //     return;
+        // }
+        let dialogueElement = target.closest('dialogue');
+        const previouslySelected = chatBoxDiv.querySelector('.selected_dialogue');
+        if (previouslySelected) {
+            previouslySelected.classList.remove('selected_dialogue');
+            previouslySelected.style.backgroundColor = '';
+        }
+        dialogueElement.classList.add('selected_dialogue');
+        dialogueElement.style.backgroundColor = 'red';
+//debug
+// console.log(dialogueElement.dataset.messageId)
+        localStorage.setItem('menghanjia_selecteddialogue', dialogueElement.dataset.messageId)
   });
 
   document.querySelector('.create-channel').addEventListener('click', function() {
     channelName = document.querySelector('textarea[name="commentandchannel"]').value;
     create_channel(channelName);
+  })
+
+  document.querySelector('.room .sidebar .post').addEventListener('click', function() {
+    post_message();
+  })
+
+  document.querySelector('.room .sidebar .reply').addEventListener('click', function() {
+    post_reply();
   })
 }
 Roomlistener();
@@ -413,11 +559,16 @@ function startChannellistPolling(){
   // console.log("Channel list polling start!")
   channellistPollingInterval = setInterval(() => {
     fetchChannelsAndUpdateUI();
-  }, 1000); //check every 1000ms
+  }, 50000); //check every 1000ms
   return channellistPollingInterval
 }
 
-
-// Attach a single click listener to the ChannelList for event delegation
-
+function startChannelMessagePolling(){
+  //debug
+  // console.log("Channel massage polling start!")
+  channelmessagePollingInterval = setInterval(() => {
+    fetchMessagesAndUpdateUI(localStorage.getItem("menghanjia_channelId"));
+  }, 1000); //check every 1000ms
+  return channelmessagePollingInterval
+}
 
