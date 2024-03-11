@@ -276,3 +276,23 @@ def get_messages(channel_id):
     else:
         messages_list = []
     return jsonify(messages_list)
+
+@app.route('/api/channels/<int:channel_id>/name', methods=['GET'])
+@api_key_required
+def getChannelName(channel_id):
+    try:
+        channel = query_db('SELECT id, name FROM channels WHERE id = ?', [channel_id], one=True)
+        return {'channel_name': channel['name']}
+    except sqlite3.Error as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/api/channels/<int:channel_id>/name', methods=['POST'])
+@api_key_required
+def rename_channel(channel_id):
+    new_name = request.json.get('new_name')
+    try:
+        query_db('UPDATE channels SET name = ? WHERE id = ?', [new_name, channel_id])
+        return jsonify({"message": "Channel name updated successful"}), 200
+    except sqlite3.Error as e:
+        return jsonify({"error": str(e)}), 500
+    

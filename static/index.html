@@ -92,7 +92,7 @@
               <label for="repeatPassword">Repeat: </label>
               <input type="password" name="repeatPassword" value="{{ password }}">
               <error>Passwords don't match</error>
-              <button class="exit goToSplash">Cool, let's start chat!</button>
+              <button class="exit goToRoom">Cool, let's start chat!</button>
               <button class="exit logout">Log out</button>
             </div>
           </div>
@@ -101,12 +101,12 @@
 
       <div class = "room"> <!-- TODO: Show me only on "/room" -->
         <div class="header">
-              <h2><a>Belay: Home</a></h2>
+              <h2><a href="/">Belay: Home</a></h2>
               <h4>1</h4>
               <div class="roomDetail">
                 <div class="displayRoomName"> 
                   <h3>
-                    Chatting in <strong>{{ room.name }}</strong>
+                    Chatting in <strong>{{ Please select a channel }}</strong>
                     <a><span class="material-symbols-outlined md-18">edit</span></a>
                   </h3>
                 </div>
@@ -141,13 +141,13 @@
                       <label for="reply">Reply to the comment</label>
                       <textarea name="reply"></textarea>
                       <div class = "button-grid">
-                        <button class ="reply" type="submit" value="Reply">Post</button>
+                        <button class ="reply" type="submit" value="Reply">Reply</button>
                       </div>
                     </div>
                     <div class="channels">
                     <div div class="ChannelList">Channels:
                       <div class="channel">Channel 1: </div>
-                      <div class="channel">Channel 2: zzzzzzz zzzzzzz zzzzzzz zzzzzzz</div>
+                      <div class="channel">Channel 2: zzzzzzz</div>
                     </div>
                     </div>
                 </aside>
@@ -156,62 +156,68 @@
                     <div class="messages">
                       <dialogue>
                         <message>
-                          <author>Mr Chatterworth</author>
-                          <content>Good evening! And how is everyone feeling? Good evening! And how is everyone feeling? Good evening! And how is everyone feeling? Good evening! And how is everyone feeling?</content>
+                          <author>Introduction from the developer</author>
+                          <content>Hi! Welcome to my app Belay, follow these simple steps to get started and make the most out of your experience!</content>
+                        </message>
+                      </dialogue>
+                      <dialogue>
+                        <message>
+                          <author>1 Channels</author>
+                          <content>
+                            Channels serve as rooms where messages and replies are posted. They can be created by any user, and the channel list is actively updated to include those created by others.
+                          </content>
                         </message>
                         <reply>
-                          <author>Mr Chatterworth</author>
-                          <content>Good evening!</content>
+                          <author>To create a channel</author>
+                          <content>
+                          Click the {+ create channel} button and input the channel name into the box labeled {What do you want to say}.
+                          If left empty, a unique name will be automatically generated for it.
+                          </content>
                         </reply>
                         <reply>
-                          <author>Mr Chatterworth</author>
-                          <content>Good evening!</content>
+                          <author>To switch to another channel</author>
+                          <content>Click the channel in the channel list.</content>
                         </reply>
                         <reply>
-                          <author>Mr Chatterworth</author>
-                          <content>Good evening!</content>
+                          <author>To edit channel name</author>
+                          <content>Click the pencil icon, input new_name then click {update} button</content>
                         </reply>
                       </dialogue>
                       <dialogue>
                         <message>
-                          <author>Mr Chatterworth</author>
-                          <content>Good evening! And how is everyone feeling? Good evening! And how is everyone feeling? Good evening! And how is everyone feeling? Good evening! And how is everyone feeling?</content>
+                          <author>2 Messages</author>
+                          <content>Messages can be replied for any times.</content>
                         </message>
                         <reply>
-                          <author>Mr Chatterworth</author>
-                          <content>Good evening!</content>
+                          <author>Get all messages in a channel</author>
+                          <content>Switch to the channel you want to chat in, click the channel in the channel list.</content>
                         </reply>
                         <reply>
-                          <author>Mr Chatterworth</author>
-                          <content>Good evening!</content>
-                        </reply>
-                      </dialogue>
-                      <dialogue>
-                        <message>
-                          <author>Mr Chatterworth</author>
-                          <content>Good evening! And how is everyone feeling? Good evening! And how is everyone feeling? Good evening! And how is everyone feeling? Good evening! And how is everyone feeling?</content>
-                        </message>
-                        <reply>
-                          <author>Mr Chatterworth</author>
-                          <content>Good evening!</content>
+                          <author>Post a new message</author>
+                          <content>Once you're in a channel, you can start posting messages for others to see and respond to. Just type your message and hit the {Post} button.</content>
                         </reply>
                       </dialogue>
                       <dialogue>
                         <message>
-                          <author>big chats</author>
-                          <content>gr8 lol</content>
+                          <author>3 Replies</author>
+                          <content>Replies can't be replied recursively, and you may reply to any message any time, it will be shown below that message.</content>
+                          <span class="material-symbols-outlined">
+                            subdirectory_arrow_right
+                          </span>
                         </message>
                         <reply>
-                          <author>Mr Chatterworth</author>
-                          <content>Good evening!</content>
+                          <author>To reply to a message</author>
+                          <content>Click the message block(including the replies belong to it) you want to reply to, 
+                            it will show a red subdirectory_arrow just like this block. 
+                            Then, input your reply into the {Reply to the comment} input bar. 
+                            Finally click {reply} button.
+                          </content>
                         </reply>
                       </dialogue>
                     </div>
                 </div>
         </div>
   </div>
-
-
     <script src="/static/script.js"> </script>
 </body>
 </html>
